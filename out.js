@@ -16,5 +16,4 @@
       }
     }
     output_int(fib(3))
-  }  
 }`,extensions:[Ut.of(Xn),su,bf(),Vm]}),nQ=new S({state:Ym,parent:document.querySelector("#input-editor")}),nu=new S({state:W.create({doc:""}),parent:document.querySelector("#input-editor")}),ru=new S({state:W.create({doc:"No errors found"}),parent:document.querySelector("#error-editor")});})();

@@ -30,7 +30,6 @@ let inputState = EditorState.create({
       }
     }
     output_int(fib(3))
-  }  
 }`,
   extensions: [
     keymap.of(defaultKeymap),

@@ -8,6 +8,7 @@
     "esbuild": "^0.17.0"
   },
   "scripts": {
-    "build":"esbuild --bundle --minify  --outfile=out.js editor.mjs"
+    "build":"esbuild --bundle --minify  --outfile=out.js editor.mjs",
+    "build:watch":"esbuild --bundle   --outfile=out.js editor.mjs"
   }
 }
