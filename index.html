@@ -3,6 +3,16 @@
   <meta charset="utf8" />
   <script src="./main.bc.js"></script>
 </head>
+<script>
+  var randomnos = Math.ceil(Math.random() * 1000000000);
+  var mysource = "./main.bc.js?r=" + randomnos;
+
+  window.onload = function () {
+    var script = document.createElement("script");
+    script.src = mysource;
+    document.head.appendChild(script);
+  };
+</script>
 <h1>Just for fun</h1>
 <body>
     <div id="input-editor"></div>
