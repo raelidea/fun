@@ -239,7 +239,7 @@ function init {
 `,Kae=`type t = { mut value:int }
 
 function sum (x: array< int >): int {
-  let u = #{ value:0 };
+  let u = { value:0 };
   for i = 0 to array_length(x) - 1 {
     u.value <- u.value + x[i]
   };
@@ -328,11 +328,11 @@ function init {
 `,Xae=`// implementation of queue using two lists
 type queue <T> = { front:list< T >, back:list< T > }
 
-function from_list <T> (front: list< T >): queue< T > { #{ front:front, back:#[] } }
+function from_list <T> (front: list< T >): queue< T > { { front:front, back:#[] } }
 
 function is_empty <T> (q: queue< T >): bool {
   match q {
-  | #{front:#[] , back:#[]} => true
+  | {front:#[] , back:#[]} => true
   | _ => false
   }
 }
@@ -350,28 +350,28 @@ function list_rev <T> (xs: list< T >): list< T > {
 
 function norm <T> (q: queue< T >): queue< T > {
   match q {
-  | #{front:#[] , back:b} => #{ front:list_rev(b), back:#[] }
+  | {front:#[] , back:b} => { front:list_rev(b), back:#[] }
   | q => q
   }
 }
 
 function enqueue <T> (q: queue< T >, x: T): queue< T > {
   match q {
-  | #{front:f , back:b} => norm(#{ front:f, back:#[x, ...b] })
+  | {front:f , back:b} => norm({ front:f, back:#[x, ...b] })
   }
 }
 
 function peek <T> (q: queue< T >): option< T > {
   match q {
-  | #{front:#[] , back:_} => None
-  | #{front:#[x, ..._] , back:_} => Some(x)
+  | {front:#[] , back:_} => None
+  | {front:#[x, ..._] , back:_} => Some(x)
   }
 }
 
 function dequeue <T> (q: queue< T >): option< queue< T > > {
   match q {
-  | #{front:#[] , back:_} => None
-  | #{front:#[_, ...f] , back:b} => Some(#{ front:f, back:b })
+  | {front:#[] , back:_} => None
+  | {front:#[_, ...f] , back:b} => Some({ front:f, back:b })
   }
 }
 
@@ -392,7 +392,7 @@ function init {
 type t = { mut value:int }
 
 function sum (x: array< int >): int {
-  let u = #{ value:0 };
+  let u = { value:0 };
   for i = 0 to array_length(x) - 1 {
     u.value <- u.value + x[i]
   };
