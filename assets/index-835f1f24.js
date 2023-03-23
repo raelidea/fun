@@ -236,14 +236,12 @@ function init {
   output_int(fib(3))
 }
 
-`,Kae=`type t = { mut value:int }
-
-function sum (x: array< int >): int {
-  let u = { value:0 };
+`,Kae=`function sum (x: array< int >): int {
+  let mut u = 0
   for i = 0 to array_length(x) - 1 {
-    u.value <- u.value + x[i]
-  };
-  u.value
+    u <- u + x[i]
+  }
+  u
 }
 
 function init {
@@ -389,14 +387,12 @@ function init {
 }
 `,Yae=`// we demo a type error first
 // and then chagne the fib to show real time feedback
-type t = { mut value:int }
-
 function sum (x: array< int >): int {
-  let u = { value:0 };
+  let mut u = 0
   for i = 0 to array_length(x) - 1 {
-    u.value <- u.value + x[i]
-  };
-  u.value
+    u <- u + x[i]
+  }
+  u
 }
 
 function init {
