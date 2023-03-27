@@ -324,7 +324,10 @@ function init {
   output_int(levenshtein("abcdheloworldabcd", "abcdhellowoorldabcd"))
 }
 `,Xae=`// implementation of queue using two lists
-type queue <T> = { front:list< T >, back:list< T > }
+type queue <T> struct{ 
+  front:list< T >
+  back:list< T >
+}
 
 function from_list <T> (front: list< T >): queue< T > { { front:front, back:#[] } }
 
