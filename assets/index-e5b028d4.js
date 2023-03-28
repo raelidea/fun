@@ -239,7 +239,7 @@ function init {
 `,Kae=`function sum (x: array< int >): int {
   let mut u = 0
   for i = 0 to array_length(x) - 1 {
-    u <- u + x[i]
+    u = u + x[i]
   }
   u
 }
@@ -297,17 +297,17 @@ function levenshtein (a: string, b: string): int {
   let n = string_length(b);
   let s = [ [], [] ];
   // create array of length n+1 with elements initialized to 0
-  s[0] <- array_make(n + 1, 0);
-  s[1] <- array_make(n + 1, 0);
+  s[0] = array_make(n + 1, 0);
+  s[1] = array_make(n + 1, 0);
   for j = 1 to n {
-    s[0][j] <- j
+    s[0][j] = j
   };
   for i = 1 to m {
-    s[i land 1][0] <- i;
+    s[i land 1][0] = i;
     for j = 1 to n {
       s[i land 1][j]
-      <-
-      if string_get(a, i - 1) = string_get(b, j - 1) {
+      =
+      if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
       }
       else {
@@ -393,7 +393,7 @@ function init {
 function sum (x: array< int >): int {
   let mut u = 0
   for i = 0 to array_length(x) - 1 {
-    u <- u + x[i]
+    u = u + x[i]
   }
   u
 }
