@@ -305,8 +305,7 @@ function levenshtein (a: string, b: string): int {
   for i = 1 to m {
     s[i land 1][0] = i;
     for j = 1 to n {
-      s[i land 1][j]
-      =
+      s[i land 1][j] =
       if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
       }
