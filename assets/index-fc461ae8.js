@@ -241,7 +241,8 @@ func init {
 
 `,Kae=`func sum (x: array< int >): int {
   var u = 0;
-  for i = 0 to array_length(x) - 1 {
+  var i = 0;
+  for i < array_length(x); i = i + 1 {
     u = u + x[i]
   };
   u
@@ -304,12 +305,15 @@ func levenshtein (a: string, b: string): int {
   // create array of length n+1 with elements initialized to 0
   s[0] = array_make(n + 1, 0);
   s[1] = array_make(n + 1, 0);
-  for j = 1 to n {
+  var j = 0;
+  for j <= n; j = j + 1 {
     s[0][j] = j
   };
-  for i = 1 to m {
+  var i = 0;
+  for i <= m; i = i + 1 {
     s[i land 1][0] = i;
-    for j = 1 to n {
+    var j = 0;
+    for j <= n; j = j + 1 {
       s[i land 1][j] = if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
       } else {
@@ -398,7 +402,8 @@ func init {
 // and then chagne the fib to show real time feedback
 func sum (x: array< int >): int {
   var u = 0;
-  for i = 0 to array_length(x) - 1 {
+  var i = 0;
+  for i < array_length(x); i = i + 1 {
     u = u + x[i]
   };
   u
