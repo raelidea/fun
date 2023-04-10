@@ -242,8 +242,9 @@ func init {
 `,Kae=`func sum (x: array< int >): int {
   var u = 0;
   var i = 0;
-  for i < array_length(x); i = i + 1 {
+  while i < array_length(x) {
     u = u + x[i]
+    i = i + 1
   };
   u
 }
@@ -305,15 +306,16 @@ func levenshtein (a: string, b: string): int {
   // create array of length n+1 with elements initialized to 0
   s[0] = array_make(n + 1, 0);
   s[1] = array_make(n + 1, 0);
-  var j = 0;
-  for j <= n; j = j + 1 {
+  var j = 1;
+  while j <= n {
     s[0][j] = j
+    j = j + 1
   };
-  var i = 0;
-  for i <= m; i = i + 1 {
+  var i = 1;
+  for i <= m {
     s[i land 1][0] = i;
-    var j = 0;
-    for j <= n; j = j + 1 {
+    var j = 1;
+    for j <= n {
       s[i land 1][j] = if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
       } else {
@@ -323,7 +325,9 @@ func levenshtein (a: string, b: string): int {
           s[i land 1][j - 1],
         )
       }
+      j = j + 1
     }
+    i = i + 1
   };
   s[m land 1][n]
 }
@@ -403,8 +407,9 @@ func init {
 func sum (x: array< int >): int {
   var u = 0;
   var i = 0;
-  for i < array_length(x); i = i + 1 {
+  while i < array_length(x) {
     u = u + x[i]
+    i = i + 1
   };
   u
 }
