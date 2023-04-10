@@ -312,10 +312,10 @@ func levenshtein (a: string, b: string): int {
     j = j + 1
   };
   var i = 1;
-  for i <= m {
+  while i <= m {
     s[i land 1][0] = i;
     var j = 1;
-    for j <= n {
+    while j <= n {
       s[i land 1][j] = if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
       } else {
