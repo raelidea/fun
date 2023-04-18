@@ -303,7 +303,7 @@ func reverse <X> (self: list<X>): list<X> {
   fn go (acc, xs: list<X>) {
     match xs {
     | Nil => acc
-    | Cons(x, rest) => go(Cons(x, acc), rest)
+    | Cons(x, rest) => go((Cons(x, acc) : list<X>), rest)
     }
   }
   go(Nil, self)
@@ -335,7 +335,7 @@ func collect<T>(self : list<T>): array<T>{
   let ary = array_make(self.length(),x)
   fn go(xs,idx){
     match xs{
-    | Nil => ()
+    | (Nil : list<T>) => ()
     | Cons(x,xs) => ary[idx]=x; go(xs,idx+1)
     }
   }
