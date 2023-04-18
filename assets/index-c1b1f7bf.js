@@ -441,7 +441,7 @@ func list_rev <T> (xs: list< T >): list< T > {
   fn go (acc, xs: list< T >) {
     match xs {
     | Nil => acc
-    | Cons((x, rest)) => go(Cons(x, acc), rest)
+    | Cons((x, rest)) => go((Cons(x, acc) : list<T>), rest)
     }
   }
 
