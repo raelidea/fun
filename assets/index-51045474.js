@@ -229,7 +229,7 @@ Error generating stack: `+o.message+`
   "hello moonbit".output()
 }
 
-`,Uae=`func fib (n: int): int {
+`,Uae=`func fib(n: int) : int {
   match n {
   | 0 | 1 => 1
   | _ => fib(n - 1) + fib(n - 2)
@@ -240,14 +240,11 @@ func init {
   fib(3).output()
 }
 
-`,Kae=`
-func sum_of_bigger_than_2 (ary: array<int>): int {
+`,Kae=`func sum_of_bigger_than_2(ary: array<int>) : int {
   var sum = 0
   var i = 0
   while i < ary.length() {
-    if ary[i] > 2 {
-      sum = sum + ary[i] 
-    }
+    if (ary[i]) > 2 { sum = sum + ary[i] }
     i = i + 1
   }
   sum
@@ -257,58 +254,52 @@ func init {
   sum_of_bigger_than_2([1, 2, 3, 4, 5]).output()
 }
 
-
-`,qae=`
-func init {
+`,qae=`func init {
   // type inference for functions
-  let double = fn(x){ x * 2 }
-  let small_than = fn(x){ fn(y){ y < x } }
-
+  let double = fn(x) { x * 2 }
+  let small_than = fn(x) { fn(y) { y < x } }
   // create a new list and double each elements, pick those small than 9.
-  let ls = [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9)); 
-
+  let ls = [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9))
   // print each elements by \`output_int\`
   ls.print_by(output_int)
-
   "\\n sum:".output()
   // use \`reduce\` to calculate the sum of each elements
-  ls.reduce(fn(a,b){ a + b }, 0).output()
-
+  ls.reduce(fn(a, b) { a + b }, 0).output()
   // collect elements of list \`ls\` into array
   let ary = ls.collect()
+  ()
 }
 
-
-
 // return the concatenation of all the elements of two lists.
-func concat <X> (self: list<X>, ys: list<X>): list<X> {
+func concat<X> (self: list<X>, ys: list<X>) : list<X> {
   match self {
   | Nil => ys
-  | Cons(x, rest) => Cons(x, concat(rest, ys))
+  | Cons(x, rest) => Cons((x, concat(rest, ys)))
   }
 }
 
 // apply function \`f\` to each element of list, collect the results into a new list.
-func map <X, Y> (self: list<X>, f: (X) => Y): list<Y> {
+func map<X, Y> (self: list<X>, f: (X) => Y) : list<Y> {
   match self {
   | Nil => Nil
-  | Cons(x, rest) => Cons(f(x), map(rest, f))
+  | Cons(x, rest) => Cons((f(x), map(rest, f)))
   }
 }
 
 // reverse the list.
-func reverse <X> (self: list<X>): list<X> {
-  fn go (acc, xs: list<X>) {
+func reverse<X> (self: list<X>) : list<X> {
+  fn go(acc, xs: list<X>) {
     match xs {
     | Nil => acc
-    | Cons(x, rest) => go((Cons(x, acc) : list<X>), rest)
+    | Cons(x, rest) => go((Cons((x, acc)) : list<X>), rest)
     }
   }
+
   go(Nil, self)
 }
 
 // apply function \`f\` to each element of list.
-func iter <X> (self: list<X>, f: (X) => unit): unit {
+func iter<X> (self: list<X>, f: (X) => unit) : unit {
   match self {
   | Nil => ()
   | Cons(x, rest) => f(x); iter(rest, f)
@@ -316,89 +307,85 @@ func iter <X> (self: list<X>, f: (X) => unit): unit {
 }
 
 // construct list from array.
-func stream<T>(self : array<T>): list<T>{
-  fn go(idx : int): list<T>{
-     if idx == self.length() {
-        Nil
-     } else {
-        Cons(self[idx],go(idx+1))
-     }
+func stream<T> (self: array<T>) : list<T> {
+  fn go(idx: int) {
+    (
+      if idx == self.length() { Nil } else { Cons((self[idx], go(idx + 1))) } :
+      list<T>)
   }
+
   go(0)
 }
 
 // collect each elements of list into new array
-func collect<T>(self : list<T>): array<T>{
-  let Cons(x,_) = self
-  let ary = array_make(self.length(),x)
-  fn go(xs,idx){
-    match xs{
-    | (Nil : list<T>) => ()
-    | Cons(x,xs) => ary[idx]=x; go(xs,idx+1)
+func collect<T> (self: list<T>) : array<T> {
+  let Cons(x, _) = self
+  let ary = array_make(self.length(), x)
+  fn go(xs, idx) {
+    match xs {
+    | (Nil:list<T>) => ()
+    | Cons(x, xs) => ary[idx] = x; go(xs, idx + 1)
     }
   }
+
   ary
 }
 
 // returns the list of those elements that satisfy the predicate.
-func filter<T>(self : list<T>, predicate : (T)=>bool) : list<T>{
-  match self{
+func filter<T> (self: list<T>, predicate: (T) => bool) : list<T> {
+  match self {
   | Nil => Nil
-  | Cons(x,xs) => 
-      if predicate(x) { 
-        Cons(x, filter(xs, predicate)) 
-      } else {
-        filter(xs,predicate) 
-      }
+  | Cons(x, xs) =>
+    if predicate(x) { Cons((x, filter(xs, predicate))) } else {
+      filter(xs, predicate)
+    }
   }
 }
 
 // length of list
-func length<T>(self : list<T>): int{
-  match self{
+func length<T> (self: list<T>) : int {
+  match self {
   | Nil => 0
-  | Cons(_,xs) => 1 + xs.length()
+  | Cons(_, xs) => 1 + xs.length()
   }
 }
 
-func reduce<T>(self : list<T>, accumulator : (T,T)=>T, initial : T) : T{
-  match self{
+func reduce<T> (self: list<T>, accumulator: (T, T) => T, initial: T) : T {
+  match self {
   | Nil => initial
-  | Cons(x,xs) => reduce(xs, accumulator, accumulator(initial,x))
+  | Cons(x, xs) => reduce(xs, accumulator, accumulator(initial, x))
   }
 }
 
 // print each elements of list by \`show\`.
-func print_by<T>(self : list<T>, show : (T)=>unit): unit{
+func print_by<T> (self: list<T>, show: (T) => unit) : unit {
   "[ ".output()
-  match self{
+  match self {
   | Nil => ()
-  | Cons(h,t) => 
-      show(h);
-      t.iter(fn(x){", ".output();show(x)})
+  | Cons(h, t) => show(h); t.iter(fn(x) { ", ".output(); show(x) })
   }
   " ]".output()
 }
 
 `,Gae=`// Levenshtein distance (https://en.wikipedia.org/wiki/Levenshtein_distance)
-func min (a: int, b: int): int { if a < b { a } else { b } }
+func min(a: int, b: int) : int { if a < b { a } else { b } }
 
-func levenshtein (a: string, b: string): int {
-  let m = string_length(a);
-  let n = string_length(b);
-  let s = [[], []];
+func levenshtein(a: string, b: string) : int {
+  let m = string_length(a)
+  let n = string_length(b)
+  let s = [[], []]
   // create array of length n+1 with elements initialized to 0
-  s[0] = array_make(n + 1, 0);
-  s[1] = array_make(n + 1, 0);
-  var j = 1;
+  s[0] = array_make(n + 1, 0)
+  s[1] = array_make(n + 1, 0)
+  var j = 1
   while j <= n {
     s[0][j] = j
     j = j + 1
-  };
-  var i = 1;
+  }
+  var i = 1
   while i <= m {
-    s[i land 1][0] = i;
-    var j = 1;
+    s[i land 1][0] = i
+    var j = 1
     while j <= n {
       s[i land 1][j] = if string_get(a, i - 1) == string_get(b, j - 1) {
         s[(i - 1) land 1][j - 1]
@@ -412,7 +399,7 @@ func levenshtein (a: string, b: string): int {
       j = j + 1
     }
     i = i + 1
-  };
+  }
   s[m land 1][n]
 }
 
@@ -421,90 +408,90 @@ func init {
 }
 
 `,Xae=`// implementation of queue using two lists
-type queue <T> struct {
-  front:list< T >
-  back:list< T >
+type queue<T> struct {
+  front:list<T>
+  back:list<T>
 }
 
-func from_list <T> (front: list< T >): queue< T > { { front:front, back:Nil } }
+func from_list<T> (front: list<T>) : queue<T> { { front:front, back:Nil } }
 
-func is_empty <T> (q: queue< T >): bool {
+func is_empty<T> (q: queue<T>) : bool {
   match q {
-  | {front:Nil, back:Nil} => true
+  | {front:Nil , back:Nil} => true
   | _ => false
   }
 }
 
-func list_rev <T> (xs: list< T >): list< T > {
-  fn go (acc, xs: list< T >) {
+func list_rev<T> (xs: list<T>) : list<T> {
+  fn go(acc, xs: list<T>) {
     match xs {
     | Nil => acc
-    | Cons((x, rest)) => go((Cons(x, acc) : list<T>), rest)
+    | Cons(x, rest) => go((Cons((x, acc)) : list<T>), rest)
     }
   }
 
   go(Nil, xs)
 }
 
-func norm <T> (q: queue< T >): queue< T > {
+func norm<T> (q: queue<T>) : queue<T> {
   match q {
   | {front:Nil , back:b} => { front:list_rev(b), back:Nil }
   | q => q
   }
 }
 
-func enqueue <T> (q: queue< T >, x: T): queue< T > {
+func enqueue<T> (q: queue<T>, x: T) : queue<T> {
   match q {
-  | {front:f , back:b} => norm({ front:f, back:Cons(x, b) })
+  | {front:f , back:b} => norm({ front:f, back:Cons((x, b)) })
   }
 }
 
-func peek <T> (q: queue< T >): option< T > {
+func peek<T> (q: queue<T>) : option<T> {
   match q {
   | {front:Nil , back:_} => None
-  | {front:Cons((x, _)) , back:_} => Some(x)
+  | {front:Cons(x, _) , back:_} => Some(x)
   }
 }
 
-func dequeue <T> (q: queue< T >): option< queue< T > > {
+func dequeue<T> (q: queue<T>) : option<queue<T>> {
   match q {
-  | {front:Nil, back:_} => None
-  | {front:Cons((_, f)), back:b} => Some({ front:f, back:b })
+  | {front:Nil , back:_} => None
+  | {front:Cons(_, f) , back:b} => Some({ front:f, back:b })
   }
 }
 
-func to_list<T>(self : array<T>) : list<T>{
-  fn go(idx : int):list<T>{
-     if idx == self.length() {
-        Nil
-     } else {
-        Cons(self[idx],go(idx+1))
-     }
+func to_list<T> (self: array<T>) : list<T> {
+  fn go(idx: int) {
+    (
+      if idx == self.length() { Nil } else { Cons((self[idx], go(idx + 1))) } :
+      list<T>)
   }
+
   go(0)
 }
 
 func init {
-  let q1 = from_list([1, 2, 3].to_list());
+  let q1 = from_list([1, 2, 3].to_list())
   match peek(q1) {
   | Some(x) => x.output()
   | None => "error".output()
-  };
-  let Some(q2) = dequeue(q1);
+  }
+  let Some(q2) = dequeue(q1)
   match peek(q2) {
   | Some(x) => x.output()
   | None => "error".output()
   }
 }
+
 `,Yae=`// we demo a type error first
 // and then chagne the fib to show real time feedback
-func sum (x: array< int >): int {
-  var u = 0;
-  var i = 0;
+func sum(x: array<int>) : int {
+  var u = 0
+  var i = 0
   while i < array_length(x) {
     u = u + x[i]
     i = i + 1
-  };
+  }
   u
 }
 
@@ -512,4 +499,4 @@ func init {
   sum([1, 2, 3, 4, 5]).output()
 }
 
-`,Qae='type option <T> enum {\n  None\n  Some ( T )\n}\n\n// ASI rules：忽略Comment，当行尾最后一个token是以下任意一种时，在行尾插入分号\nfunc init {\n  // Float，Int，Bool，String，Char的字面量。如`"hello"` `123` `3.14` `true` `false`\n  let a = 10\n  let b = false\n  let c = "hello"\n  // Identifier，如：`myfunction` `myVar` `MyConstructor`\n  let d = 5 + a\n  let e = (None : option<int>)\n  // `}` `]` `)` `>` `_`\n  let f = [1, 2, 3]\n  let g = (a, b, c)\n  d.output()\n}\n\n',Jae=()=>{const t=Object.assign({"../assets/examples/001_hello.moon":jae,"../assets/examples/002_fib.moon":Uae,"../assets/examples/003_imperative.moon":Kae,"../assets/examples/004_generic_list.moon":qae,"../assets/examples/005_levenshtein_distance.moon":Gae,"../assets/examples/006_queue.moon":Xae,"../assets/examples/007_instant_feedback.moon":Yae,"../assets/examples/008_ASI_rules.moon":Qae}),e={path:"/",name:"",entries:[]};return Object.entries(t).map(([n,r])=>{const i=It.parse(n);return{path:`/${i.base}`,name:i.base,basename:i.name,ext:i.ext,content:r}}).reduce((n,r)=>(e.entries.push(r.path),n[r.path]=r,n),{[e.path]:e})},Zae=t=>(e,n)=>ir(t[e])&&!ir(t[n])?-1:!ir(t[e])&&ir(t[n])?1:e<n?-1:1,xh=t=>{qs(t,{variant:"error"})},ele=(t,e)=>({resources:Jae(),actions:{setResources(n){t(r=>{r.explorer.resources=n})},addResource(n){t(r=>{if(r.explorer.resources[n.path]){xh("A file or folder with the same name has already exists.");return}const i=r.explorer.resources[It.dirname(n.path)];ir(i)?(i.entries.push(n.path),i.entries.sort(Zae(r.explorer.resources)),r.explorer.resources[n.path]=n):xh("Invalid path.")})},updateResource(n,r){const i=e(),o=It.dirname(n),s=It.dirname(r.path??n);let a=n;if(r.path||r.name){if(a=r.path??It.resolve(s,r.name),i.explorer.resources[a]){xh("A file or folder with the same name has already exists.");return}i.editor.tabs.find(u=>u.file===n)&&(i.editor.actions.updateTab(n,{id:a,file:a}),t(u=>{u.editor.viewsStack=u.editor.viewsStack.map(c=>c===n?a:c),u.editor.activeTabId===n&&(u.editor.activeTabId=a)})),t(u=>{const c=u.explorer.resources,f=c[o],d=c[s];ir(f)&&(f.entries=f.entries.filter(h=>h!==n)),ir(d)&&d.entries.push(r.path??It.resolve(d.path,r.name))}),t(u=>{const c=u.explorer.resources,f=c[n];f.path=a,f.name=It.basename(a),rf(f)&&(f.basename=It.parse(a).name,f.ext=It.extname(a)),delete c[n],c[a]=f})}"content"in r&&t(l=>{const u=l.explorer.resources[n];rf(u)&&(u.content=r.content)})},removeResource(n){t(r=>{const i=r.explorer.resources[It.dirname(n)];ir(i)?(i.entries=i.entries.filter(o=>o!==n),delete r.explorer.resources[n]):xh("Invalid target.")}),e().editor.actions.closeTab(n)}}}),tle=t=>({tabs:[],activeTabId:null,viewsStack:[],actions:{openTab(e){t(n=>{const r=n.editor.tabs.find(i=>i.file===e);if(r)n.editor.activeTabId=r.id,n.editor.viewsStack.splice(n.editor.viewsStack.indexOf(r.id),1),n.editor.viewsStack.push(r.id);else{const i={id:e,file:e,isTemporary:!0};n.editor.tabs.push(i),n.editor.activeTabId=i.id,n.editor.viewsStack.push(i.id)}})},closeTab(e){t(n=>{const r=n.editor.tabs.findIndex(i=>i.id===e);r>-1&&(n.editor.tabs.splice(r,1),n.editor.viewsStack.splice(n.editor.viewsStack.indexOf(e),1),n.editor.activeTabId===e&&(n.editor.activeTabId=n.editor.viewsStack.length>0?n.editor.viewsStack[n.editor.viewsStack.length-1]:null))})},updateTab(e,n){t(r=>{const i=r.editor.tabs.findIndex(o=>o.id===e);i>-1&&(r.editor.tabs[i]={...r.editor.tabs[i],...n})})}}}),nle=t=>({channels:{lint:[],wat:[],instruction:[],log:[]},actions:{postMessage(e,n,r=!0){t(i=>{i.output.channels[e]&&(r?i.output.channels[e].push(n):i.output.channels[e]=[n])})},clearChannel(e){t(n=>{n.output.channels[e]=[]})}}}),rle=HU()(sK(qU(UU((...t)=>({settings:aK(...t),layout:Wae(...t),explorer:ele(...t),editor:tle(...t),output:nle(...t)}))))),Fe=rle;function ile(){const t=Fe(n=>n.layout.actions.togglePanel),e=_g();return we(kD,{sx:n=>({display:{xs:"flex",md:"block"},width:{md:50},bgcolor:n.palette.container.light,flex:"none",".MuiListItem-root":{flex:"auto",justifyContent:"center"},".MuiListItem-padding":{px:0,py:{xs:0,md:1}},".MuiIconButton-root":{color:n.palette.text.primary}}),disablePadding:!0,children:[D(Tu,{disablePadding:!0,children:D(yi,{sx:{px:0,justifyContent:"center"},children:D(uK,{color:"primary",fontSize:"large"})})}),D(wH,{orientation:e?"vertical":"horizontal",sx:{mb:2}}),D(Tu,{children:D(Gi,{title:"Files",placement:"right",children:D(yi,{onClick:()=>t("left","explorer"),children:D(SK,{})})})}),D(Tu,{children:D(Gi,{title:"Run",placement:"right",children:D(yi,{onClick:()=>o4(),children:D(bK,{})})})}),D(Tu,{children:D(Gi,{title:"Share Code",placement:"right",children:D(yi,{onClick:EK,children:D(wK,{})})})}),D(Tu,{children:D(Gi,{title:"Settings",placement:"right",children:D(yi,{onClick:()=>t("left","settings"),children:D(xK,{})})})})]})}const ole=({sx:t,children:e})=>{const n=x.useRef(),r=x.useCallback(i=>{var o;i.preventDefault(),(o=n.current)==null||o.scrollBy({left:i.deltaY<0?-30:30})},[]);return D(Jt,{sx:{overflowX:"auto",overflowY:"hidden","&::-webkit-scrollbar":{display:"none"},...t},ref:n,onWheel:r,children:e})};function sle(){const t=Xt(),e=Fe(p=>p.editor.tabs),n=Fe(gw),r=Fe(_D),i=Fe(p=>p.layout.bottomPanel.type),o=Fe(p=>p.editor.actions.openTab),s=Fe(p=>p.editor.actions.closeTab),a=Fe(p=>p.layout.actions.togglePanel),l=Fe(p=>p.explorer.actions.updateResource),u=x.useRef(new Map),c=x.useRef(null),f=n==null?void 0:n.file;f&&!u.current.has(f)&&u.current.set(f,Aae({doc:r??""}));const d=f&&u.current.get(f),h=x.useCallback(async(p,m)=>{try{if(!n||BD(p))return;u.current.set(p,m.state);const b=m.state.doc.toString();l(n.file,{content:b})}catch(b){console.error(b)}},[n,l]);return we(Jt,{sx:{display:"flex",flexDirection:"column",flex:"auto",overflow:"hidden"},children:[we(Jt,{sx:{display:{xs:"none",md:"flex"},flex:"none",overflow:"hidden"},children:[D(ole,{sx:{display:"flex",height:28,flex:"auto",alignItems:"center",bgcolor:t.palette.container.light},children:e.map(p=>D(Gi,{title:p.file,enterDelay:1e3,placement:"bottom-end",arrow:!0,slotProps:{tooltip:{sx:{marginTop:"8px!important"}}},children:D(i9,{label:It.basename(p.file),variant:t.palette.mode==="dark"?"filled":(n==null?void 0:n.id)===p.id?"outlined":"filled",color:(n==null?void 0:n.id)===p.id?"primary":"default",sx:{height:22,ml:1,".MuiChip-deleteIcon":{fontSize:16}},onClick:()=>o(p.file),onDelete:()=>s(p.id)})},p.id))}),we(Jt,{sx:{flex:"none",bgcolor:t.palette.container.light,"& .MuiIconButton-root":{p:.5}},children:[D(Gi,{title:"Format Code",arrow:!0,children:D(yi,{size:"small",onClick:()=>{if(!c.current)return;const p=c.current.state.doc.toString(),m=window.rael.pretty(p).code;m&&c.current.dispatch({changes:{from:0,to:p.length,insert:m}})},children:D(fK,{fontSize:"small"})})}),D(Gi,{title:"Toggle Side Panel",arrow:!0,children:D(yi,{size:"small",onClick:()=>a("bottom",i),children:D(CK,{fontSize:"small"})})})]})]}),f&&d?D(TS,{id:f,initialState:d,editorRef:c,onBlur:h}):D(Jt,{sx:{display:"flex",justifyContent:"center",alignItems:"center",flex:"auto"},children:D(Nl,{variant:"h6",sx:{color:t.palette.text.disabled},children:"Open a file in files panel"})})]})}const ale=le.memo(sle);function lle(){const t=Xt(),e=Fe(i=>i.layout),n=_g(),r=e.panels[e.leftPanel.type];return jee(),we(Jt,{sx:{display:"flex",flexDirection:{xs:"column",md:"row"},width:window.innerWidth,height:window.innerHeight,overflow:"hidden"},onContextMenu:i=>{i.preventDefault()},onKeyDown:i=>{i.key==="Tab"&&i.preventDefault()},children:[D(ile,{}),D(cD,{in:e.leftPanel.show,orientation:n?"vertical":"horizontal",sx:{flex:"none",".MuiCollapse-wrapperInner":{width:{xs:"100%",md:250},minWidth:250,backgroundColor:t.palette.container.dark}},children:r&&D(r,{...e.leftPanel.data})}),D(ale,{}),D(NH,{sx:{width:{xs:"100%",md:.4},height:{xs:.4*window.innerHeight,md:"100%"},marginRight:e.bottomPanel.show?{xs:0,md:0}:{xs:0,md:"-40%"},marginBottom:e.bottomPanel.show?{xs:0,md:0}:{xs:`${-.4*window.innerHeight+50}px`,md:0},flexShrink:0,transition:t.transitions.create(["margin-right","margin-bottom"],{duration:225}),"& .MuiDrawer-paper":{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"stretch",position:"relative"}},variant:"persistent",anchor:n?"bottom":"right",open:!0,children:D(a4,{...e.bottomPanel.data})})]})}function ule(){const t=Fe(n=>n.settings.theme.darkMode),e=_g();return D(az,{theme:t?Ju:QN,children:we(p_,{autoHideDuration:3e3,anchorOrigin:{horizontal:e?"center":"left",vertical:"bottom"},children:[D(uH,{enableColorScheme:!0}),D(lle,{})]})})}K0.createRoot(document.getElementById("root")).render(D(le.StrictMode,{children:D(ule,{})}));
+`,Qae='type option<T> enum {\n  None\n  Some (T)\n}\n\n// ASI rules：忽略Comment，当行尾最后一个token是以下任意一种时，在行尾插入分号\nfunc init {\n  // Float，Int，Bool，String，Char的字面量。如`"hello"` `123` `3.14` `true` `false`\n  let a = 10\n  let b = false\n  let c = "hello"\n  // Identifier，如：`myfunction` `myVar` `MyConstructor`\n  let d = 5 + a\n  let e = (None : option<int>)\n  // `}` `]` `)` `>` `_`\n  let f = [1, 2, 3]\n  let g = (a, b, c)\n  d.output()\n}\n\n',Jae=()=>{const t=Object.assign({"../assets/examples/001_hello.moon":jae,"../assets/examples/002_fib.moon":Uae,"../assets/examples/003_imperative.moon":Kae,"../assets/examples/004_generic_list.moon":qae,"../assets/examples/005_levenshtein_distance.moon":Gae,"../assets/examples/006_queue.moon":Xae,"../assets/examples/007_instant_feedback.moon":Yae,"../assets/examples/008_ASI_rules.moon":Qae}),e={path:"/",name:"",entries:[]};return Object.entries(t).map(([n,r])=>{const i=It.parse(n);return{path:`/${i.base}`,name:i.base,basename:i.name,ext:i.ext,content:r}}).reduce((n,r)=>(e.entries.push(r.path),n[r.path]=r,n),{[e.path]:e})},Zae=t=>(e,n)=>ir(t[e])&&!ir(t[n])?-1:!ir(t[e])&&ir(t[n])?1:e<n?-1:1,xh=t=>{qs(t,{variant:"error"})},ele=(t,e)=>({resources:Jae(),actions:{setResources(n){t(r=>{r.explorer.resources=n})},addResource(n){t(r=>{if(r.explorer.resources[n.path]){xh("A file or folder with the same name has already exists.");return}const i=r.explorer.resources[It.dirname(n.path)];ir(i)?(i.entries.push(n.path),i.entries.sort(Zae(r.explorer.resources)),r.explorer.resources[n.path]=n):xh("Invalid path.")})},updateResource(n,r){const i=e(),o=It.dirname(n),s=It.dirname(r.path??n);let a=n;if(r.path||r.name){if(a=r.path??It.resolve(s,r.name),i.explorer.resources[a]){xh("A file or folder with the same name has already exists.");return}i.editor.tabs.find(u=>u.file===n)&&(i.editor.actions.updateTab(n,{id:a,file:a}),t(u=>{u.editor.viewsStack=u.editor.viewsStack.map(c=>c===n?a:c),u.editor.activeTabId===n&&(u.editor.activeTabId=a)})),t(u=>{const c=u.explorer.resources,f=c[o],d=c[s];ir(f)&&(f.entries=f.entries.filter(h=>h!==n)),ir(d)&&d.entries.push(r.path??It.resolve(d.path,r.name))}),t(u=>{const c=u.explorer.resources,f=c[n];f.path=a,f.name=It.basename(a),rf(f)&&(f.basename=It.parse(a).name,f.ext=It.extname(a)),delete c[n],c[a]=f})}"content"in r&&t(l=>{const u=l.explorer.resources[n];rf(u)&&(u.content=r.content)})},removeResource(n){t(r=>{const i=r.explorer.resources[It.dirname(n)];ir(i)?(i.entries=i.entries.filter(o=>o!==n),delete r.explorer.resources[n]):xh("Invalid target.")}),e().editor.actions.closeTab(n)}}}),tle=t=>({tabs:[],activeTabId:null,viewsStack:[],actions:{openTab(e){t(n=>{const r=n.editor.tabs.find(i=>i.file===e);if(r)n.editor.activeTabId=r.id,n.editor.viewsStack.splice(n.editor.viewsStack.indexOf(r.id),1),n.editor.viewsStack.push(r.id);else{const i={id:e,file:e,isTemporary:!0};n.editor.tabs.push(i),n.editor.activeTabId=i.id,n.editor.viewsStack.push(i.id)}})},closeTab(e){t(n=>{const r=n.editor.tabs.findIndex(i=>i.id===e);r>-1&&(n.editor.tabs.splice(r,1),n.editor.viewsStack.splice(n.editor.viewsStack.indexOf(e),1),n.editor.activeTabId===e&&(n.editor.activeTabId=n.editor.viewsStack.length>0?n.editor.viewsStack[n.editor.viewsStack.length-1]:null))})},updateTab(e,n){t(r=>{const i=r.editor.tabs.findIndex(o=>o.id===e);i>-1&&(r.editor.tabs[i]={...r.editor.tabs[i],...n})})}}}),nle=t=>({channels:{lint:[],wat:[],instruction:[],log:[]},actions:{postMessage(e,n,r=!0){t(i=>{i.output.channels[e]&&(r?i.output.channels[e].push(n):i.output.channels[e]=[n])})},clearChannel(e){t(n=>{n.output.channels[e]=[]})}}}),rle=HU()(sK(qU(UU((...t)=>({settings:aK(...t),layout:Wae(...t),explorer:ele(...t),editor:tle(...t),output:nle(...t)}))))),Fe=rle;function ile(){const t=Fe(n=>n.layout.actions.togglePanel),e=_g();return we(kD,{sx:n=>({display:{xs:"flex",md:"block"},width:{md:50},bgcolor:n.palette.container.light,flex:"none",".MuiListItem-root":{flex:"auto",justifyContent:"center"},".MuiListItem-padding":{px:0,py:{xs:0,md:1}},".MuiIconButton-root":{color:n.palette.text.primary}}),disablePadding:!0,children:[D(Tu,{disablePadding:!0,children:D(yi,{sx:{px:0,justifyContent:"center"},children:D(uK,{color:"primary",fontSize:"large"})})}),D(wH,{orientation:e?"vertical":"horizontal",sx:{mb:2}}),D(Tu,{children:D(Gi,{title:"Files",placement:"right",children:D(yi,{onClick:()=>t("left","explorer"),children:D(SK,{})})})}),D(Tu,{children:D(Gi,{title:"Run",placement:"right",children:D(yi,{onClick:()=>o4(),children:D(bK,{})})})}),D(Tu,{children:D(Gi,{title:"Share Code",placement:"right",children:D(yi,{onClick:EK,children:D(wK,{})})})}),D(Tu,{children:D(Gi,{title:"Settings",placement:"right",children:D(yi,{onClick:()=>t("left","settings"),children:D(xK,{})})})})]})}const ole=({sx:t,children:e})=>{const n=x.useRef(),r=x.useCallback(i=>{var o;i.preventDefault(),(o=n.current)==null||o.scrollBy({left:i.deltaY<0?-30:30})},[]);return D(Jt,{sx:{overflowX:"auto",overflowY:"hidden","&::-webkit-scrollbar":{display:"none"},...t},ref:n,onWheel:r,children:e})};function sle(){const t=Xt(),e=Fe(p=>p.editor.tabs),n=Fe(gw),r=Fe(_D),i=Fe(p=>p.layout.bottomPanel.type),o=Fe(p=>p.editor.actions.openTab),s=Fe(p=>p.editor.actions.closeTab),a=Fe(p=>p.layout.actions.togglePanel),l=Fe(p=>p.explorer.actions.updateResource),u=x.useRef(new Map),c=x.useRef(null),f=n==null?void 0:n.file;f&&!u.current.has(f)&&u.current.set(f,Aae({doc:r??""}));const d=f&&u.current.get(f),h=x.useCallback(async(p,m)=>{try{if(!n||BD(p))return;u.current.set(p,m.state);const b=m.state.doc.toString();l(n.file,{content:b})}catch(b){console.error(b)}},[n,l]);return we(Jt,{sx:{display:"flex",flexDirection:"column",flex:"auto",overflow:"hidden"},children:[we(Jt,{sx:{display:{xs:"none",md:"flex"},flex:"none",overflow:"hidden"},children:[D(ole,{sx:{display:"flex",height:28,flex:"auto",alignItems:"center",bgcolor:t.palette.container.light},children:e.map(p=>D(Gi,{title:p.file,enterDelay:1e3,placement:"bottom-end",arrow:!0,slotProps:{tooltip:{sx:{marginTop:"8px!important"}}},children:D(i9,{label:It.basename(p.file),variant:t.palette.mode==="dark"?"filled":(n==null?void 0:n.id)===p.id?"outlined":"filled",color:(n==null?void 0:n.id)===p.id?"primary":"default",sx:{height:22,ml:1,".MuiChip-deleteIcon":{fontSize:16}},onClick:()=>o(p.file),onDelete:()=>s(p.id)})},p.id))}),we(Jt,{sx:{flex:"none",bgcolor:t.palette.container.light,"& .MuiIconButton-root":{p:.5}},children:[D(Gi,{title:"Format Code",arrow:!0,children:D(yi,{size:"small",onClick:()=>{if(!c.current)return;const p=c.current.state.doc.toString(),m=window.rael.pretty(p).code;m&&c.current.dispatch({changes:{from:0,to:p.length,insert:m}})},children:D(fK,{fontSize:"small"})})}),D(Gi,{title:"Toggle Side Panel",arrow:!0,children:D(yi,{size:"small",onClick:()=>a("bottom",i),children:D(CK,{fontSize:"small"})})})]})]}),f&&d?D(TS,{id:f,initialState:d,editorRef:c,onBlur:h}):D(Jt,{sx:{display:"flex",justifyContent:"center",alignItems:"center",flex:"auto"},children:D(Nl,{variant:"h6",sx:{color:t.palette.text.disabled},children:"Open a file in files panel"})})]})}const ale=le.memo(sle);function lle(){const t=Xt(),e=Fe(i=>i.layout),n=_g(),r=e.panels[e.leftPanel.type];return jee(),we(Jt,{sx:{display:"flex",flexDirection:{xs:"column",md:"row"},width:window.innerWidth,height:window.innerHeight,overflow:"hidden"},onContextMenu:i=>{i.preventDefault()},onKeyDown:i=>{i.key==="Tab"&&i.preventDefault()},children:[D(ile,{}),D(cD,{in:e.leftPanel.show,orientation:n?"vertical":"horizontal",sx:{flex:"none",".MuiCollapse-wrapperInner":{width:{xs:"100%",md:250},minWidth:250,backgroundColor:t.palette.container.dark}},children:r&&D(r,{...e.leftPanel.data})}),D(ale,{}),D(NH,{sx:{width:{xs:"100%",md:.4},height:{xs:.4*window.innerHeight,md:"100%"},marginRight:e.bottomPanel.show?{xs:0,md:0}:{xs:0,md:"-40%"},marginBottom:e.bottomPanel.show?{xs:0,md:0}:{xs:`${-.4*window.innerHeight+50}px`,md:0},flexShrink:0,transition:t.transitions.create(["margin-right","margin-bottom"],{duration:225}),"& .MuiDrawer-paper":{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"stretch",position:"relative"}},variant:"persistent",anchor:n?"bottom":"right",open:!0,children:D(a4,{...e.bottomPanel.data})})]})}function ule(){const t=Fe(n=>n.settings.theme.darkMode),e=_g();return D(az,{theme:t?Ju:QN,children:we(p_,{autoHideDuration:3e3,anchorOrigin:{horizontal:e?"center":"left",vertical:"bottom"},children:[D(uH,{enableColorScheme:!0}),D(lle,{})]})})}K0.createRoot(document.getElementById("root")).render(D(le.StrictMode,{children:D(ule,{})}));
