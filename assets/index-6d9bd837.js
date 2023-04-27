@@ -274,7 +274,7 @@ func init {
 func concat<X> (self: list<X>, ys: list<X>) : list<X> {
   match self {
   | Nil => ys
-  | Cons(x, rest) => Cons((x, concat(rest, ys)))
+  | Cons(x, rest) => Cons(x, concat(rest, ys))
   }
 }
 
@@ -282,7 +282,7 @@ func concat<X> (self: list<X>, ys: list<X>) : list<X> {
 func map<X, Y> (self: list<X>, f: (X) => Y) : list<Y> {
   match self {
   | Nil => Nil
-  | Cons(x, rest) => Cons((f(x), map(rest, f)))
+  | Cons(x, rest) => Cons(f(x), map(rest, f))
   }
 }
 
@@ -291,7 +291,7 @@ func reverse<X> (self: list<X>) : list<X> {
   fn go(acc, xs: list<X>) {
     match xs {
     | Nil => acc
-    | Cons(x, rest) => go((Cons((x, acc)) : list<X>), rest)
+    | Cons(x, rest) => go((Cons(x, acc) : list<X>), rest)
     }
   }
 
@@ -310,7 +310,7 @@ func iter<X> (self: list<X>, f: (X) => unit) : unit {
 func stream<T> (self: array<T>) : list<T> {
   fn go(idx: int) {
     (
-      if idx == self.length() { Nil } else { Cons((self[idx], go(idx + 1))) } :
+      if idx == self.length() { Nil } else { Cons(self[idx], go(idx + 1)) } :
       list<T>)
   }
 
@@ -323,7 +323,7 @@ func collect<T> (self: list<T>) : array<T> {
   let ary = array_make(self.length(), x)
   fn go(xs, idx) {
     match xs {
-    | (Nil:list<T>) => ()
+    | (Nil : list<T>) => ()
     | Cons(x, xs) => ary[idx] = x; go(xs, idx + 1)
     }
   }
@@ -336,7 +336,7 @@ func filter<T> (self: list<T>, predicate: (T) => bool) : list<T> {
   match self {
   | Nil => Nil
   | Cons(x, xs) =>
-    if predicate(x) { Cons((x, filter(xs, predicate))) } else {
+    if predicate(x) { Cons(x, filter(xs, predicate)) } else {
       filter(xs, predicate)
     }
   }
@@ -426,7 +426,7 @@ func list_rev<T> (xs: list<T>) : list<T> {
   fn go(acc, xs: list<T>) {
     match xs {
     | Nil => acc
-    | Cons(x, rest) => go((Cons((x, acc)) : list<T>), rest)
+    | Cons(x, rest) => go((Cons(x, acc) : list<T>), rest)
     }
   }
 
@@ -442,7 +442,7 @@ func norm<T> (q: queue<T>) : queue<T> {
 
 func enqueue<T> (q: queue<T>, x: T) : queue<T> {
   match q {
-  | {front:f , back:b} => norm({ front:f, back:Cons((x, b)) })
+  | {front:f , back:b} => norm({ front:f, back:Cons(x, b) })
   }
 }
 
@@ -463,7 +463,7 @@ func dequeue<T> (q: queue<T>) : option<queue<T>> {
 func to_list<T> (self: array<T>) : list<T> {
   fn go(idx: int) {
     (
-      if idx == self.length() { Nil } else { Cons((self[idx], go(idx + 1))) } :
+      if idx == self.length() { Nil } else { Cons(self[idx], go(idx + 1)) } :
       list<T>)
   }
 
