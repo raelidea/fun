@@ -231,8 +231,8 @@ Error generating stack: `+o.message+`
 
 `,Uae=`func fib(n: int) : int {
   match n {
-  | 0 | 1 => 1
-  | _ => fib(n - 1) + fib(n - 2)
+    0 | 1 => { 1 }
+    _ => { fib(n - 1) + fib(n - 2) }
   }
 }
 
@@ -240,15 +240,11 @@ func init {
   fib(3).output()
 }
 
-`,Kae=`
-// this file is to show the native support 
-// of imperative programming in Moonbit language
-
-func sum_of_bigger_than_2(ary: array[int]) : int {
+`,Kae=`func sum_of_bigger_than_2(ary: array[int]) : int {
   var sum = 0
   var i = 0
   while i < ary.length() {
-    if (ary[i]) > 2 { sum = sum + ary[i] }
+    if ary[i] > 2 { sum = sum + ary[i] }
     i = i + 1
   }
   sum
@@ -259,39 +255,34 @@ func init {
 }
 
 `,qae=`func init {
-  
   // type inference for functions
-  // x := y is short hand let syntax sugar
-  double := fn(x) { x * 2 }
-
-  small_than := fn(x) { fn(y) { y < x } }
+  let double = fn(x) { x * 2 }
+  let small_than = fn(x) { fn(y) { y < x } }
   // create a new list and double each elements, pick those small than 9.
-  ls := [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9))
+  let ls = [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9))
   // print each elements by \`output_int\`
   ls.print_by(output_int)
   "\\n sum:".output()
   // use \`reduce\` to calculate the sum of each elements
   ls.reduce(fn(a, b) { a + b }, 0).output()
   // collect elements of list \`ls\` into array
-  ary := ls.collect()
-  
+  let ary = ls.collect()
+  ()
 }
 
-// return the concatenation of all the elements of two lists.
-// when the first parameter is self, it can be called in the 
 // OO style
 func concat[X] (self: list[X], ys: list[X]) : list[X] {
   match self {
-  | Nil => ys
-  | Cons(x, rest) => Cons(x, concat(rest, ys))
+    Nil => { ys }
+    Cons(x, rest) => { Cons(x, concat(rest, ys)) }
   }
 }
 
 // apply function \`f\` to each element of list, collect the results into a new list.
 func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
   match self {
-  | Nil => Nil
-  | Cons(x, rest) => Cons(f(x), map(rest, f))
+    Nil => { Nil }
+    Cons(x, rest) => { Cons(f(x), map(rest, f)) }
   }
 }
 
@@ -299,8 +290,8 @@ func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
 func reverse[X] (self: list[X]) : list[X] {
   fn go(acc, xs: list[X]) {
     match xs {
-    | Nil => acc
-    | Cons(x, rest) => go((Cons(x, acc) : list[X]), rest)
+      Nil => { acc }
+      Cons(x, rest) => { go((Cons(x, acc) : list[X]), rest) }
     }
   }
 
@@ -310,8 +301,8 @@ func reverse[X] (self: list[X]) : list[X] {
 // apply function \`f\` to each element of list.
 func iter[X] (self: list[X], f: (X) => unit) : unit {
   match self {
-  | Nil => ()
-  | Cons(x, rest) => f(x); iter(rest, f)
+    Nil => { () }
+    Cons(x, rest) => { f(x); iter(rest, f) }
   }
 }
 
@@ -330,8 +321,8 @@ func collect[T] (self: list[T]) : array[T] {
   let ary = array_make(self.length(), x)
   fn go(xs, idx) {
     match xs {
-    | (Nil : list[T]) => ()
-    | Cons(x, xs) => ary[idx] = x; go(xs, idx + 1)
+      (Nil : list[T]) => { () }
+      Cons(x, xs) => { ary[idx] = x; go(xs, idx + 1) }
     }
   }
 
@@ -341,12 +332,13 @@ func collect[T] (self: list[T]) : array[T] {
 // returns the list of those elements that satisfy the predicate.
 func filter[T] (self: list[T], predicate: (T) => bool) : list[T] {
   match self {
-  | Nil => Nil
-  | Cons(x, xs) =>
-    if predicate(x) {
-      Cons(x, filter(xs, predicate))
-    } else {
-      filter(xs, predicate)
+    Nil => { Nil }
+    Cons(x, xs) => {
+      if predicate(x) {
+        Cons(x, filter(xs, predicate))
+      } else {
+        filter(xs, predicate)
+      }
     }
   }
 }
@@ -354,15 +346,15 @@ func filter[T] (self: list[T], predicate: (T) => bool) : list[T] {
 // length of list
 func length[T] (self: list[T]) : int {
   match self {
-  | Nil => 0
-  | Cons(_, xs) => 1 + xs.length()
+    Nil => { 0 }
+    Cons(_, xs) => { 1 + xs.length() }
   }
 }
 
 func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
   match self {
-  | Nil => initial
-  | Cons(x, xs) => reduce(xs, accumulator, accumulator(initial, x))
+    Nil => { initial }
+    Cons(x, xs) => { reduce(xs, accumulator, accumulator(initial, x)) }
   }
 }
 
@@ -370,21 +362,20 @@ func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
 func print_by[T] (self: list[T], show: (T) => unit) : unit {
   "[ ".output()
   match self {
-  | Nil => ()
-  | Cons(h, t) => show(h); t.iter(fn(x) { ", ".output(); show(x) })
+    Nil => { () }
+    Cons(h, t) => { show(h); t.iter(fn(x) { ", ".output(); show(x) }) }
   }
   " ]".output()
 }
 
-`,Gae=`// Levenshtein distance (https://en.wikipedia.org/wiki/Levenshtein_distance)
-func min(a: int, b: int) : int {
+`,Gae=`func min(a: int, b: int) : int {
   if a < b { a } else { b }
 }
 
 func levenshtein(a: string, b: string) : int {
-  m := string_length(a)
-  n := string_length(b)
-  s := [[], []]
+  let m = string_length(a)
+  let n = string_length(b)
+  let s = [[], []]
   // create array of length n+1 with elements initialized to 0
   s[0] = array_make(n + 1, 0)
   s[1] = array_make(n + 1, 0)
@@ -418,8 +409,7 @@ func init {
   levenshtein("abcdheloworldabcd", "abcdhellowoorldabcd").output()
 }
 
-`,Xae=`// implementation of queue using two lists
-type queue[T] struct {
+`,Xae=`type queue[T] struct {
   front:list[T]
   back:list[T]
 }
@@ -430,16 +420,16 @@ func from_list[T] (front: list[T]) : queue[T] {
 
 func is_empty[T] (q: queue[T]) : bool {
   match q {
-  | {front:Nil, back:Nil} => true
-  | _ => false
+    {front:Nil, back:Nil} => { true }
+    _ => { false }
   }
 }
 
 func list_rev[T] (xs: list[T]) : list[T] {
   fn go(acc, xs: list[T]) {
     match xs {
-    | Nil => acc
-    | Cons(x, rest) => go((Cons(x, acc) : list[T]), rest)
+      Nil => { acc }
+      Cons(x, rest) => { go((Cons(x, acc) : list[T]), rest) }
     }
   }
 
@@ -448,28 +438,28 @@ func list_rev[T] (xs: list[T]) : list[T] {
 
 func norm[T] (q: queue[T]) : queue[T] {
   match q {
-  | {front:Nil, back:b} => { front:list_rev(b), back:Nil }
-  | q => q
+    {front:Nil, back:b} => { { front:list_rev(b), back:Nil } }
+    q => { q }
   }
 }
 
 func enqueue[T] (q: queue[T], x: T) : queue[T] {
   match q {
-  | {front:f, back:b} => norm({ front:f, back:Cons(x, b) })
+    {front:f, back:b} => { norm({ front:f, back:Cons(x, b) }) }
   }
 }
 
 func peek[T] (q: queue[T]) : option[T] {
   match q {
-  | {front:Nil, back:_} => None
-  | {front:Cons(x, _), back:_} => Some(x)
+    {front:Nil, back:_} => { None }
+    {front:Cons(x, _), back:_} => { Some(x) }
   }
 }
 
 func dequeue[T] (q: queue[T]) : option[queue[T]] {
   match q {
-  | {front:Nil, back:_} => None
-  | {front:Cons(_, f), back:b} => Some({ front:f, back:b })
+    {front:Nil, back:_} => { None }
+    {front:Cons(_, f), back:b} => { Some({ front:f, back:b }) }
   }
 }
 
@@ -484,19 +474,17 @@ func to_list[T] (self: array[T]) : list[T] {
 func init {
   let q1 = from_list([1, 2, 3].to_list())
   match peek(q1) {
-  | Some(x) => x.output()
-  | None => "error".output()
+    Some(x) => { x.output() }
+    None => { "error".output() }
   }
   let Some(q2) = dequeue(q1)
   match peek(q2) {
-  | Some(x) => x.output()
-  | None => "error".output()
+    Some(x) => { x.output() }
+    None => { "error".output() }
   }
 }
 
-`,Yae=`// we demo a type error first
-// and then chagne the fib to show real time feedback
-func sum(x: array[int]) : int {
+`,Yae=`func sum(x: array[int]) : int {
   var u = 0
   var i = 0
   while i < array_length(x) {
