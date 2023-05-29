@@ -231,8 +231,8 @@ Error generating stack: `+o.message+`
 
 `,Uae=`func fib(n: int) : int {
   match n {
-    0 | 1 => { 1 }
-    _ => { fib(n - 1) + fib(n - 2) }
+    0 | 1 => 1
+    _ => fib(n - 1) + fib(n - 2)
   }
 }
 
@@ -273,16 +273,16 @@ func init {
 // OO style
 func concat[X] (self: list[X], ys: list[X]) : list[X] {
   match self {
-    Nil => { ys }
-    Cons(x, rest) => { Cons(x, concat(rest, ys)) }
+    Nil => ys
+    Cons(x, rest) => Cons(x, concat(rest, ys))
   }
 }
 
 // apply function \`f\` to each element of list, collect the results into a new list.
 func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
   match self {
-    Nil => { Nil }
-    Cons(x, rest) => { Cons(f(x), map(rest, f)) }
+    Nil => Nil
+    Cons(x, rest) => Cons(f(x), map(rest, f))
   }
 }
 
@@ -290,8 +290,8 @@ func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
 func reverse[X] (self: list[X]) : list[X] {
   fn go(acc, xs: list[X]) {
     match xs {
-      Nil => { acc }
-      Cons(x, rest) => { go((Cons(x, acc) : list[X]), rest) }
+      Nil => acc
+      Cons(x, rest) => go((Cons(x, acc) : list[X]), rest)
     }
   }
 
@@ -301,7 +301,7 @@ func reverse[X] (self: list[X]) : list[X] {
 // apply function \`f\` to each element of list.
 func iter[X] (self: list[X], f: (X) => unit) : unit {
   match self {
-    Nil => { () }
+    Nil => ()
     Cons(x, rest) => { f(x); iter(rest, f) }
   }
 }
@@ -321,7 +321,7 @@ func collect[T] (self: list[T]) : array[T] {
   let ary = array_make(self.length(), x)
   fn go(xs, idx) {
     match xs {
-      (Nil : list[T]) => { () }
+      (Nil : list[T]) => ()
       Cons(x, xs) => { ary[idx] = x; go(xs, idx + 1) }
     }
   }
@@ -332,29 +332,28 @@ func collect[T] (self: list[T]) : array[T] {
 // returns the list of those elements that satisfy the predicate.
 func filter[T] (self: list[T], predicate: (T) => bool) : list[T] {
   match self {
-    Nil => { Nil }
-    Cons(x, xs) => {
+    Nil => Nil
+    Cons(x, xs) =>
       if predicate(x) {
         Cons(x, filter(xs, predicate))
       } else {
         filter(xs, predicate)
       }
-    }
   }
 }
 
 // length of list
 func length[T] (self: list[T]) : int {
   match self {
-    Nil => { 0 }
-    Cons(_, xs) => { 1 + xs.length() }
+    Nil => 0
+    Cons(_, xs) => 1 + xs.length()
   }
 }
 
 func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
   match self {
-    Nil => { initial }
-    Cons(x, xs) => { reduce(xs, accumulator, accumulator(initial, x)) }
+    Nil => initial
+    Cons(x, xs) => reduce(xs, accumulator, accumulator(initial, x))
   }
 }
 
@@ -362,12 +361,11 @@ func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
 func print_by[T] (self: list[T], show: (T) => unit) : unit {
   "[ ".output()
   match self {
-    Nil => { () }
+    Nil => ()
     Cons(h, t) => { show(h); t.iter(fn(x) { ", ".output(); show(x) }) }
   }
   " ]".output()
 }
-
 `,Gae=`func min(a: int, b: int) : int {
   if a < b { a } else { b }
 }
@@ -420,16 +418,16 @@ func from_list[T] (front: list[T]) : queue[T] {
 
 func is_empty[T] (q: queue[T]) : bool {
   match q {
-    {front:Nil, back:Nil} => { true }
-    _ => { false }
+    {front:Nil, back:Nil} => true
+    _ => false
   }
 }
 
 func list_rev[T] (xs: list[T]) : list[T] {
   fn go(acc, xs: list[T]) {
     match xs {
-      Nil => { acc }
-      Cons(x, rest) => { go((Cons(x, acc) : list[T]), rest) }
+      Nil => acc
+      Cons(x, rest) => go((Cons(x, acc) : list[T]), rest)
     }
   }
 
@@ -438,28 +436,28 @@ func list_rev[T] (xs: list[T]) : list[T] {
 
 func norm[T] (q: queue[T]) : queue[T] {
   match q {
-    {front:Nil, back:b} => { { front:list_rev(b), back:Nil } }
-    q => { q }
+    {front:Nil, back:b} => { front:list_rev(b), back:Nil }
+    q => q
   }
 }
 
 func enqueue[T] (q: queue[T], x: T) : queue[T] {
   match q {
-    {front:f, back:b} => { norm({ front:f, back:Cons(x, b) }) }
+    {front:f, back:b} => norm({ front:f, back:Cons(x, b) })
   }
 }
 
 func peek[T] (q: queue[T]) : option[T] {
   match q {
-    {front:Nil, back:_} => { None }
-    {front:Cons(x, _), back:_} => { Some(x) }
+    {front:Nil, back:_} => None
+    {front:Cons(x, _), back:_} => Some(x)
   }
 }
 
 func dequeue[T] (q: queue[T]) : option[queue[T]] {
   match q {
-    {front:Nil, back:_} => { None }
-    {front:Cons(_, f), back:b} => { Some({ front:f, back:b }) }
+    {front:Nil, back:_} => None
+    {front:Cons(_, f), back:b} => Some({ front:f, back:b })
   }
 }
 
@@ -474,13 +472,13 @@ func to_list[T] (self: array[T]) : list[T] {
 func init {
   let q1 = from_list([1, 2, 3].to_list())
   match peek(q1) {
-    Some(x) => { x.output() }
-    None => { "error".output() }
+    Some(x) => x.output()
+    None => "error".output()
   }
   let Some(q2) = dequeue(q1)
   match peek(q2) {
-    Some(x) => { x.output() }
-    None => { "error".output() }
+    Some(x) => x.output()
+    None => "error".output()
   }
 }
 
@@ -505,15 +503,15 @@ func init {
 
 func init {
   // Float,Int,Bool,String,Char
-  let a = 10
-  let b = false
-  let c = "hello"
+  a := 10
+  b := false
+  c := "hello"
   // Identifier
-  let d = 5 + a
-  let e = (None : option[int])
+  d := 5 + a
+  e := option::None
   // } ] ) > _
-  let f = [1, 2, 3]
-  let g = (a, b, c)
+  f := [1, 2, 3]
+  g := (a, b, c)
   d.output()
   // continue, break
   while false {
