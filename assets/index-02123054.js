@@ -256,17 +256,17 @@ func init {
 
 `,qae=`func init {
   // type inference for functions
-  let double = fn(x) { x * 2 }
-  let small_than = fn(x) { fn(y) { y < x } }
+  double := fn(x) { x * 2 }
+  small_than := fn(x) { fn(y) { y < x } }
   // create a new list and double each elements, pick those small than 9.
-  let ls = [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9))
+  ls := [1, 2, 3, 4, 5].stream().map(double).filter(small_than(9))
   // print each elements by \`output_int\`
   ls.print_by(output_int)
   "\\n sum:".output()
   // use \`reduce\` to calculate the sum of each elements
   ls.reduce(fn(a, b) { a + b }, 0).output()
   // collect elements of list \`ls\` into array
-  let ary = ls.collect()
+  ary := ls.collect()
   ()
 }
 
@@ -318,7 +318,7 @@ func stream[T] (self: array[T]) : list[T] {
 // collect each elements of list into new array
 func collect[T] (self: list[T]) : array[T] {
   let Cons(x, _) = self
-  let ary = array_make(self.length(), x)
+  ary := array_make(self.length(), x)
   fn go(xs, idx) {
     match xs {
       (Nil : list[T]) => ()
@@ -366,14 +366,15 @@ func print_by[T] (self: list[T], show: (T) => unit) : unit {
   }
   " ]".output()
 }
+
 `,Gae=`func min(a: int, b: int) : int {
   if a < b { a } else { b }
 }
 
 func levenshtein(a: string, b: string) : int {
-  let m = string_length(a)
-  let n = string_length(b)
-  let s = [[], []]
+  m := string_length(a)
+  n := string_length(b)
+  s := [[], []]
   // create array of length n+1 with elements initialized to 0
   s[0] = array_make(n + 1, 0)
   s[1] = array_make(n + 1, 0)
@@ -470,7 +471,7 @@ func to_list[T] (self: array[T]) : list[T] {
 }
 
 func init {
-  let q1 = from_list([1, 2, 3].to_list())
+  q1 := from_list([1, 2, 3].to_list())
   match peek(q1) {
     Some(x) => x.output()
     None => "error".output()
@@ -506,13 +507,16 @@ func init {
   a := 10
   b := false
   c := "hello"
+  
   // Identifier
   d := 5 + a
   e := option::None
+  
   // } ] ) > _
   f := [1, 2, 3]
   g := (a, b, c)
   d.output()
+  
   // continue, break
   while false {
     continue
