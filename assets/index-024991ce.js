@@ -229,7 +229,7 @@ Error generating stack: `+o.message+`
   "hello moonbit".output()
 }
 
-`,Uae=`func fib(n: int) : int {
+`,Uae=`func fib(n: int) -> int {
   match n {
     0 | 1 => 1
     _ => fib(n - 1) + fib(n - 2)
@@ -240,7 +240,7 @@ func init {
   fib(3).output()
 }
 
-`,Kae=`func sum_of_bigger_than_2(ary: array[int]) : int {
+`,Kae=`func sum_of_bigger_than_2(ary: array[int]) -> int {
   var sum = 0
   var i = 0
   while i < ary.length() {
@@ -271,7 +271,7 @@ func init {
 }
 
 // OO style
-func concat[X] (self: list[X], ys: list[X]) : list[X] {
+func concat[X] (self: list[X], ys: list[X]) -> list[X] {
   match self {
     Nil => ys
     Cons(x, rest) => Cons(x, concat(rest, ys))
@@ -279,7 +279,7 @@ func concat[X] (self: list[X], ys: list[X]) : list[X] {
 }
 
 // apply function \`f\` to each element of list, collect the results into a new list.
-func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
+func map[X, Y] (self: list[X], f: (X) -> Y) -> list[Y] {
   match self {
     Nil => Nil
     Cons(x, rest) => Cons(f(x), map(rest, f))
@@ -287,7 +287,7 @@ func map[X, Y] (self: list[X], f: (X) => Y) : list[Y] {
 }
 
 // reverse the list.
-func reverse[X] (self: list[X]) : list[X] {
+func reverse[X] (self: list[X]) -> list[X] {
   fn go(acc, xs: list[X]) {
     match xs {
       Nil => acc
@@ -299,7 +299,7 @@ func reverse[X] (self: list[X]) : list[X] {
 }
 
 // apply function \`f\` to each element of list.
-func iter[X] (self: list[X], f: (X) => unit) : unit {
+func iter[X] (self: list[X], f: (X) -> unit) -> unit {
   match self {
     Nil => ()
     Cons(x, rest) => { f(x); iter(rest, f) }
@@ -307,8 +307,8 @@ func iter[X] (self: list[X], f: (X) => unit) : unit {
 }
 
 // construct list from array.
-func stream[T] (self: array[T]) : list[T] {
-  fn go(idx: int) : list[T] {
+func stream[T] (self: array[T]) -> list[T] {
+  fn go(idx: int) -> list[T] {
     if idx == self.length() { Nil } else { Cons(self[idx], go(idx + 1)) }
   }
 
@@ -316,7 +316,7 @@ func stream[T] (self: array[T]) : list[T] {
 }
 
 // collect each elements of list into new array
-func collect[T] (self: list[T]) : array[T] {
+func collect[T] (self: list[T]) -> array[T] {
   let Cons(x, _) = self
   let ary = array_make(self.length(), x)
   fn go(xs, idx) {
@@ -330,7 +330,7 @@ func collect[T] (self: list[T]) : array[T] {
 }
 
 // returns the list of those elements that satisfy the predicate.
-func filter[T] (self: list[T], predicate: (T) => bool) : list[T] {
+func filter[T] (self: list[T], predicate: (T) -> bool) -> list[T] {
   match self {
     Nil => Nil
     Cons(x, xs) =>
@@ -343,14 +343,14 @@ func filter[T] (self: list[T], predicate: (T) => bool) : list[T] {
 }
 
 // length of list
-func length[T] (self: list[T]) : int {
+func length[T] (self: list[T]) -> int {
   match self {
     Nil => 0
     Cons(_, xs) => 1 + xs.length()
   }
 }
 
-func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
+func reduce[T] (self: list[T], accumulator: (T, T) -> T, initial: T) -> T {
   match self {
     Nil => initial
     Cons(x, xs) => reduce(xs, accumulator, accumulator(initial, x))
@@ -358,7 +358,7 @@ func reduce[T] (self: list[T], accumulator: (T, T) => T, initial: T) : T {
 }
 
 // print each elements of list by \`show\`.
-func print_by[T] (self: list[T], show: (T) => unit) : unit {
+func print_by[T] (self: list[T], show: (T) -> unit) -> unit {
   "[ ".output()
   match self {
     Nil => ()
@@ -367,11 +367,11 @@ func print_by[T] (self: list[T], show: (T) => unit) : unit {
   " ]".output()
 }
 
-`,Gae=`func min(a: int, b: int) : int {
+`,Gae=`func min(a: int, b: int) -> int {
   if a < b { a } else { b }
 }
 
-func levenshtein(a: string, b: string) : int {
+func levenshtein(a: string, b: string) -> int {
   let m = string_length(a)
   let n = string_length(b)
   let s = [[], []]
@@ -413,18 +413,18 @@ func init {
   back:list[T]
 }
 
-func from_list[T] (front: list[T]) : queue[T] {
+func from_list[T] (front: list[T]) -> queue[T] {
   { front:front, back:Nil }
 }
 
-func is_empty[T] (q: queue[T]) : bool {
+func is_empty[T] (q: queue[T]) -> bool {
   match q {
     {front:Nil, back:Nil} => true
     _ => false
   }
 }
 
-func list_rev[T] (xs: list[T]) : list[T] {
+func list_rev[T] (xs: list[T]) -> list[T] {
   fn go(acc, xs: list[T]) {
     match xs {
       Nil => acc
@@ -435,35 +435,35 @@ func list_rev[T] (xs: list[T]) : list[T] {
   go(Nil, xs)
 }
 
-func norm[T] (q: queue[T]) : queue[T] {
+func norm[T] (q: queue[T]) -> queue[T] {
   match q {
     {front:Nil, back:b} => { front:list_rev(b), back:Nil }
     q => q
   }
 }
 
-func enqueue[T] (q: queue[T], x: T) : queue[T] {
+func enqueue[T] (q: queue[T], x: T) -> queue[T] {
   match q {
     {front:f, back:b} => norm({ front:f, back:Cons(x, b) })
   }
 }
 
-func peek[T] (q: queue[T]) : option[T] {
+func peek[T] (q: queue[T]) -> option[T] {
   match q {
     {front:Nil, back:_} => None
     {front:Cons(x, _), back:_} => Some(x)
   }
 }
 
-func dequeue[T] (q: queue[T]) : option[queue[T]] {
+func dequeue[T] (q: queue[T]) -> option[queue[T]] {
   match q {
     {front:Nil, back:_} => None
     {front:Cons(_, f), back:b} => Some({ front:f, back:b })
   }
 }
 
-func to_list[T] (self: array[T]) : list[T] {
-  fn go(idx: int) : list[T] {
+func to_list[T] (self: array[T]) -> list[T] {
+  fn go(idx: int) -> list[T] {
     if idx == self.length() { Nil } else { Cons(self[idx], go(idx + 1)) }
   }
 
@@ -483,7 +483,7 @@ func init {
   }
 }
 
-`,Yae=`func sum(x: array[int]) : int {
+`,Yae=`func sum(x: array[int]) -> int {
   var u = 0
   var i = 0
   while i < array_length(x) {
